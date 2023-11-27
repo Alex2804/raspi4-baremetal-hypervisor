@@ -33,7 +33,7 @@ _start:
     and     x1, x1, 0x3
     cmp     x1, #0
     beq     2f
-    // cpu id > 0, stop
+    // cpu id != 0, stop
 1:  wfe
     b       1b
 2:  // cpu id == 0
