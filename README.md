@@ -5,9 +5,19 @@
 ### task_0
 Basic setup with uart 1 running on core #0.
 
+Running with command:
+```bash
+qemu-system-aarch64 -S -M raspi3b -gdb tcp::58227 -serial null -serial stdio -kernel kernel8.img
+```
+
 ### task_1
 Determine the exception level (should be EL2) and switches to EL1.
 Implements the EL2 exception vector table and uses the HVC instruction to switch from EL1 to EL2.
+
+Running with command:
+```bash
+qemu-system-aarch64 -S -M raspi3b -gdb tcp::58227 -serial null -serial stdio -d int -kernel kernel8.img
+```
 
 ## References
 - https://github.com/raspberrypi
