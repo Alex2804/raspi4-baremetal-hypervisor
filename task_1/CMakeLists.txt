@@ -10,10 +10,12 @@ set(ELF_FILE_NAME task1.elf)
 set(BIN_TARGET_NAME task1.img)
 
 set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/link.ld)
-set(ASM_SRC ${CMAKE_CURRENT_SOURCE_DIR}/start.S)
+set(ASM_SRC start.S src/exceptions/exceptions.S src/exceptions/el2.S)
 set(C_SRC
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/uart.c
+        src/main.c
+        src/uart.c
+        src/exceptions/exceptions.c
+        src/exceptions/el2.c
 )
 
 add_executable(${ELF_FILE_NAME} ${C_SRC} ${ASM_SRC})

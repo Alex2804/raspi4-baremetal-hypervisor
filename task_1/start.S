@@ -35,9 +35,11 @@ _start:
     beq     2f
     // cpu id != 0, stop
 1:  wfe
-    b       1b
+    b       hang_loop
 2:  // cpu id == 0
 
+    // set stack pointer to use SP_EL0
+    msr     SPSel, #0
     // set top of stack just before our code (stack grows to a lower address per AAPCS64)
     ldr     x1, =_start
     mov     sp, x1
@@ -53,4 +55,7 @@ _start:
     // jump to C code, should not return
 4:  bl      main
     // for failsafe, halt this core too
-    b       1b
+    b       hang_loop
+
+hang_loop:
+    b       hang_loop

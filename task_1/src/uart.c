@@ -93,11 +93,50 @@ char uart_getc() {
 /**
  * Display a string
  */
-void uart_puts(char *s) {
+void uart_put_string(char *s) {
     while(*s) {
         /* convert newline to carriage return + newline */
         if(*s=='\n')
             uart_send('\r');
         uart_send(*s++);
+    }
+}
+
+/**
+ * Display a hexadecimal number
+ */
+void uart_put_hex(unsigned long long h) {
+    uart_send('0');
+    uart_send('x');
+    int flag = 0;
+    for(int c = 60; c >= 0; c -= 4) {
+        unsigned long long n = (h>>c) & 0xF; // get highest tetrad
+        if(n != 0 || flag != 0 || c == 0) {
+            flag = 1;
+            n += n>9 ? 0x37 : 0x30; // 0-9 => '0'-'9', 10-15 => 'A'-'F'
+            uart_send(n);
+        }
+    }
+}
+
+/**
+ * Display a long
+ */
+void uart_put_long(long long d) {
+    if(d < 0) {
+        uart_send('-');
+        d = -d;
+    }
+
+    long flag = 0;
+    for(long long c = 1000000000000000000; c >= 1; c /= 10) {
+        // get highest digit
+        long long n = (d/c) % 10;
+        if(n != 0 || flag != 0 || c == 1){
+            flag = 1;
+            // 0-9 => '0'-'9'
+            n += 0x30;
+            uart_send(n);
+        }
     }
 }

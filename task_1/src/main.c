@@ -1,58 +1,85 @@
-/*
- * Copyright (C) 2018 bzt (bztsrc@github)
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- */
+#include "uart.h"
+#include "exceptions/exceptions.h"
+#include "exceptions/el2.h"
 
-int get_el() {
-    int el;
-    asm volatile("mrs %0, CurrentEL" : "=r"(el));
-    return el >> 2;
+void step_up_to_el2() {
+    uart_put_string("Before hvc instruction, we are at EL");
+    uart_put_long(get_el());
+    uart_send('\n');
+
+    asm("hvc #0xf2");
+
+    uart_put_string("After hvc instruction, we are at EL");
+    uart_put_long(get_el());
+    uart_send('\n');
 }
 
-#include "uart.h"
+void step_down_to_el0();
+void step_down_to_el1();
 
-void main()
-{
-    int el = get_el();
-
-    // set up serial console
-    uart_init();
-
-    if(el == 3)
-        uart_puts("Hello World from EL3!\n");
-    else if(el == 2)
-        uart_puts("Hello World from EL2!\n");
-    else if(el == 1)
-        uart_puts("Hello World from EL1!\n");
-    else if(el == 0)
-        uart_puts("Hello World from EL0!\n");
-    else
-        uart_puts("Hello World from unknown EL!\n");
-    
-    // echo everything back
+void step_downward_to_el0_code() {
+    uart_put_string("EL0\n");
     while(1) {
         char c = uart_getc();
         uart_send(c);
         uart_send(c);
     }
+}
+void step_downward_to_el1_code() {
+    uart_put_string("We are now at EL");
+    uart_put_long(get_el());
+    uart_send('\n');
+
+    //step_down_to_el0();
+    // step up to el2 with exception
+    step_up_to_el2();
+    while(1) {
+        char c = uart_getc();
+        uart_send(c);
+        uart_send(c);
+    }
+}
+
+void el_downstep(int current_el, void* eret_addr, long spsr_bitmask) {
+    uart_put_string("stepping down from EL");
+    uart_put_long(current_el);
+    uart_put_string(" to EL");
+    uart_put_long(current_el - 1);
+    uart_put_string("\n");
+
+    if(current_el == 3) {
+        asm("msr elr_el3, %0\n\t"
+            "msr spsr_el3, %1\n\t"
+            "eret": : "r"(eret_addr), "r"(spsr_bitmask));
+    } else if(current_el == 2) {
+        asm("msr elr_el2, %0\n\t"
+            "msr spsr_el2, %1\n\t"
+            "eret" : : "r"(eret_addr), "r"(spsr_bitmask));
+    } else if(current_el == 1) {
+        asm("msr elr_el1, %0\n\t"
+            "msr spsr_el1, %1\n\t"
+            "eret" : : "r"(eret_addr), "r"(spsr_bitmask));
+    }
+}
+void step_down_to_el0() {
+    const int el = get_el();
+    el_downstep(el, &step_downward_to_el0_code, 0b00000); // return to aarch64 el0 with (implicit) sp_el0
+}
+void step_down_to_el1() {
+    const int el = get_el();
+    if(el == 3 || el == 2) {
+        el_downstep(el, &step_downward_to_el1_code, 0b00100); // return to aarch64 el1 with sp_el0
+    }
+}
+
+void main()
+{
+    uart_init();
+    init_el2_vectors();
+
+    uart_put_string("Initialy we are at EL");
+    uart_put_long(get_el());
+    uart_send('\n');
+
+    step_down_to_el1();
 }
