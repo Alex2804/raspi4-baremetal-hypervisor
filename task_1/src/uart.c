@@ -23,6 +23,8 @@
  *
  */
 
+#include "uart.h"
+
 #include "gpio.h"
 
 /* Auxilary mini UART registers */
@@ -93,7 +95,7 @@ char uart_getc() {
 /**
  * Display a string
  */
-void uart_put_string(char *s) {
+void uart_puts(char *s) {
     while(*s) {
         /* convert newline to carriage return + newline */
         if(*s=='\n')
@@ -105,7 +107,7 @@ void uart_put_string(char *s) {
 /**
  * Display a hexadecimal number
  */
-void uart_put_hex(unsigned long long h) {
+void uart_hex(unsigned long long h) {
     uart_send('0');
     uart_send('x');
     int flag = 0;
@@ -122,7 +124,7 @@ void uart_put_hex(unsigned long long h) {
 /**
  * Display a long
  */
-void uart_put_long(long long d) {
+void uart_long(long long d) {
     if(d < 0) {
         uart_send('-');
         d = -d;
@@ -138,5 +140,31 @@ void uart_put_long(long long d) {
             n += 0x30;
             uart_send(n);
         }
+    }
+}
+
+/**
+ * Dump memory
+ */
+void uart_dump(void *ptr)
+{
+    unsigned long a,b,d;
+    unsigned char c;
+    for(a=(unsigned long)ptr;a<(unsigned long)ptr+512;a+=16) {
+        uart_hex(a); uart_puts(": ");
+        for(b=0;b<16;b++) {
+            c=*((unsigned char*)(a+b));
+            d=(unsigned int)c;d>>=4;d&=0xF;d+=d>9?0x37:0x30;uart_send(d);
+            d=(unsigned int)c;d&=0xF;d+=d>9?0x37:0x30;uart_send(d);
+            uart_send(' ');
+            if(b%4==3)
+                uart_send(' ');
+        }
+        for(b=0;b<16;b++) {
+            c=*((unsigned char*)(a+b));
+            uart_send(c<32||c>=127?'.':c);
+        }
+        uart_send('\r');
+        uart_send('\n');
     }
 }

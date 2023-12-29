@@ -3,14 +3,14 @@
 #include "exceptions/el2.h"
 
 void step_up_to_el2() {
-    uart_put_string("Before hvc instruction, we are at EL");
-    uart_put_long(get_el());
+    uart_puts("Before hvc instruction, we are at EL");
+    uart_long(get_el());
     uart_send('\n');
 
     asm("hvc #0xf2");
 
-    uart_put_string("After hvc instruction, we are at EL");
-    uart_put_long(get_el());
+    uart_puts("After hvc instruction, we are at EL");
+    uart_long(get_el());
     uart_send('\n');
 }
 
@@ -18,7 +18,7 @@ void step_down_to_el0();
 void step_down_to_el1();
 
 void step_downward_to_el0_code() {
-    uart_put_string("EL0\n");
+    uart_puts("EL0\n");
     while(1) {
         char c = uart_getc();
         uart_send(c);
@@ -26,8 +26,8 @@ void step_downward_to_el0_code() {
     }
 }
 void step_downward_to_el1_code() {
-    uart_put_string("We are now at EL");
-    uart_put_long(get_el());
+    uart_puts("We are now at EL");
+    uart_long(get_el());
     uart_send('\n');
 
     //step_down_to_el0();
@@ -41,11 +41,11 @@ void step_downward_to_el1_code() {
 }
 
 void el_downstep(int current_el, void* eret_addr, long spsr_bitmask) {
-    uart_put_string("stepping down from EL");
-    uart_put_long(current_el);
-    uart_put_string(" to EL");
-    uart_put_long(current_el - 1);
-    uart_put_string("\n");
+    uart_puts("stepping down from EL");
+    uart_long(current_el);
+    uart_puts(" to EL");
+    uart_long(current_el - 1);
+    uart_puts("\n");
 
     if(current_el == 3) {
         asm("msr elr_el3, %0\n\t"
@@ -77,8 +77,8 @@ void main()
     uart_init();
     init_el2_vectors();
 
-    uart_put_string("Initialy we are at EL");
-    uart_put_long(get_el());
+    uart_puts("Initialy we are at EL");
+    uart_long(get_el());
     uart_send('\n');
 
     step_down_to_el1();
