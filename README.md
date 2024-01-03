@@ -19,7 +19,7 @@ Running with command:
 qemu-system-aarch64 -S -M raspi3b -gdb tcp::58227 -serial null -serial stdio -d int -kernel kernel8.img
 ```
 
-You can find a small description of the exception levels [here](task_1/aarch64-exception-model).
+You can find a small, high level overview of the AArch64 Exception Model [here](task_1/aarch64-exception-model.md).
 
 ## References
 - https://github.com/raspberrypi
