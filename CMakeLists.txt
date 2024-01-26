@@ -9,3 +9,4 @@ project(raspi4-baremetal-hypervisor)
 
 add_subdirectory(task_0)
 add_subdirectory(task_1)
+add_subdirectory(task_2)

@@ -19,6 +19,14 @@ Running with command:
 qemu-system-aarch64 -S -M raspi3b -gdb tcp::58227 -serial null -serial stdio -d int -kernel kernel8.img
 ```
 
+### task_2
+Read general purpose registers, vector processing registers, memory-mapped registers, and control/status registers and print them for each privilege level.
+
+Running with command:
+```bash
+qemu-system-aarch64 -S -M raspi3b -gdb tcp::58227 -serial null -serial stdio -d int -kernel kernel8.img
+```
+
 You can find a small, high level overview of the AArch64 Exception Model [here](task_1/aarch64-exception-model.md).
 
 ## References
