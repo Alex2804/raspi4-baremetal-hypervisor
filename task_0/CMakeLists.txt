@@ -1,10 +1,7 @@
 cmake_minimum_required(VERSION 3.5.0)
 
-set(CMAKE_SYSTEM_NAME Generic)
-set(CMAKE_SYSTEM_PROCESSOR aarch64)
-set(CMAKE_CROSSCOMPILING TRUE)
+include(../cmake/toolchain-aarch64-none-elf-gcc.cmake)
 
-set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 project(task0 C ASM)
 set(ELF_FILE_NAME task0.elf)
 set(BIN_TARGET_NAME task0.img)
@@ -12,8 +9,8 @@ set(BIN_TARGET_NAME task0.img)
 set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/link.ld)
 set(ASM_SRC ${CMAKE_CURRENT_SOURCE_DIR}/start.S)
 set(C_SRC
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/uart.c
+        src/main.c
+        src/uart.c
 )
 
 add_executable(${ELF_FILE_NAME} ${C_SRC} ${ASM_SRC})
