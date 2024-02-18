@@ -3,6 +3,8 @@
 void main()
 {
     uart_init();
+
+    uart_write_newline();
     uart_write_char('b');
     uart_write_newline();
     uart_write_char('c');
@@ -12,5 +14,13 @@ void main()
     uart_write_newline();
     uart_write_long(123456789);
     uart_write_newline();
-    while (1);
+
+    while (1) {
+        const char c = uart_read_char();
+        if(c == '\n') {
+            uart_write_newline();
+        } else {
+            uart_write_char(c);
+        }
+    }
 }
