@@ -1,10 +1,9 @@
-#include "uart.h"
+#include "utils/uart.h"
 
 void main()
 {
     uart_init();
 
-    uart_write_newline();
     uart_write_char('b');
     uart_write_newline();
     uart_write_char('c');

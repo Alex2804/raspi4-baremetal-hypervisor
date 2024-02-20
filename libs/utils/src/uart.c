@@ -1,4 +1,4 @@
-#include "../../config.h"
+#include "utils/config.h"
 
 #if BUILD_FOR_QEMU
 #   define MMIO_BASE       0x3F000000
@@ -126,7 +126,7 @@ void uart_write_byte(unsigned char c) {
 void uart_write_char(char c) {
     uart_write_byte_blocking(c);
 }
-void uart_write_string(char *buffer) {
+void uart_write_string(const char *buffer) {
     while(*buffer) {
         if(*buffer == '\n') {
             uart_write_byte_blocking('\r');
