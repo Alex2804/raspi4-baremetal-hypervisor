@@ -1,9 +1,10 @@
 #include "utils/uart.h"
-#include "exceptions/exceptions.h"
-#include "exceptions/el2.h"
+#include "utils/exceptions/exceptions.h"
+#include "utils/exceptions/el2.h"
 
 void step_downward_to_el0_code() {
     uart_write_string("We are now at EL0\n");
+
     while(1) {
         char c = uart_read_char();
         uart_write_char(c);

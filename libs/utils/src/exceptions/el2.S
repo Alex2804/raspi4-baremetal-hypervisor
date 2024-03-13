@@ -1,8 +1,8 @@
-#include "exceptions/el2.h"
+#include "utils/exceptions/el2.h"
 
 .text
 
-.globl init_el2_vectors
+.global init_el2_vectors
 init_el2_vectors:
     adr x0, vectors
     msr vbar_el2, x0

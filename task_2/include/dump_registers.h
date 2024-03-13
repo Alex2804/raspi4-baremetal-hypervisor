@@ -1,13 +1,15 @@
-#ifndef REGISTERS_H
-#define REGISTERS_H
+#ifndef DUMP_REGISTERS_H
+#define DUMP_REGISTERS_H
+
+#include "utils/uart.h"
 
 #define __PRINT_REGISTER_GENERAL(mov_cmd, register_name, output_name) \
     { \
         unsigned long long _register_value; \
         asm volatile(mov_cmd " %0, " #register_name : "=r" (_register_value)); \
-        uart_puts(output_name ": "); \
-        uart_full_hex(_register_value); \
-        uart_send('\n'); \
+        uart_write_string(output_name ": "); \
+        uart_write_hex(_register_value); \
+        uart_write_newline(); \
     }
 
 #define __PRINT_REGISTER_WITH_NAME(register_name, output_name) __PRINT_REGISTER_GENERAL("mov", register_name, output_name)
@@ -21,10 +23,10 @@
         unsigned long long _lower_half, _upper_half; \
         asm volatile("mov %0, " #register_name ".2d[0]" : "=r" (_lower_half)); \
         asm volatile("mov %0, " #register_name ".2d[1]" : "=r" (_upper_half)); \
-        uart_puts(#register_name ": "); \
-        uart_full_hex(_upper_half); \
-        uart_full_hex_without_prefix(_lower_half); \
-        uart_send('\n'); \
+        uart_write_string(#register_name ": "); \
+        uart_write_hex(_upper_half); \
+        uart_write_hex_without_prefix(_lower_half); \
+        uart_write_newline(); \
     }
 
 #define PRINT_GENERAL_PURPOSE_REGISTERS() \
@@ -125,4 +127,4 @@
     }
 
 
-#endif //REGISTERS_H
+#endif //DUMP_REGISTERS_H

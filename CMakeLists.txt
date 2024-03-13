@@ -10,7 +10,11 @@ include(cmake/toolchain-aarch64-none-elf-gcc.cmake)
 project(raspi4-baremetal-hypervisor)
 
 add_subdirectory(libs/utils rp4bh_utils)
+include(cmake/baremetal-target.cmake)
 
 add_subdirectory(task_0)
 add_subdirectory(task_1)
 add_subdirectory(task_2)
+add_subdirectory(task_3)
+add_subdirectory(task_4)
+add_subdirectory(task_5)

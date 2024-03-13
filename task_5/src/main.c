@@ -1,14 +1,11 @@
-#include "dump_registers.h"
-
 #include "utils/uart.h"
-#include "utils/exceptions/exceptions.h"
+#include "utils/multicore.h"
 #include "utils/exceptions/el2.h"
+#include "utils/exceptions/exceptions.h"
 
 
 void step_downward_to_el0_code() {
     uart_write_string("We are now at EL0\n");
-
-    PRINT_ALL_REGISTERS(0);
 
     while(1) {
         char c = uart_read_char();
@@ -34,37 +31,44 @@ void step_up_to_el2() {
 void step_downward_to_el1_code() {
     print_el("We are now at EL");
 
-    PRINT_ALL_REGISTERS(get_el());
     step_up_to_el2();
-
-    PRINT_ALL_REGISTERS(get_el());
     step_down_to_el0();
 }
 void step_down_to_el1() {
     const int el = get_el();
     if(el == 3 || el == 2) {
-        const spsr_elx_t spsr = spsr_elx_create_for_el_change(1, 0, 0);
+        const spsr_elx_t spsr = spsr_elx_create_for_el_change(1, 0, 1);
         el_downstep(el, spsr, &step_downward_to_el1_code); // return to aarch64 el1 with sp_el0
     }
 }
 
+void slave_core_main() {
+    int core_id = -1;
+    asm volatile("mrs %0, mpidr_el1\n\t"
+                 "and %0, %0, 0x3" : "=r" (core_id));
+    clear_core(core_id);
+
+    uart_write_string("Hello from core ");
+    uart_write_long(core_id);
+    uart_write_string("!\n");
+
+    init_el2_vectors();
+    step_down_to_el1();
+}
+
 void main()
 {
-    init_el2_vectors();
     uart_init();
 
-    // enable fp and simd instructions at EL0 and EL1
-    unsigned int tmp = (0x3 << 20);
-    asm volatile("msr cpacr_el1, %0" : : "r" (tmp));
+    for(int core = 1; core < 4; ++core) {
+        start_core(core, &slave_core_main);
+        for(unsigned long long i = 0; i < 100000000; ++i) {
+            asm volatile("nop");
+        }
+    }
 
+    uart_write_string("Hello from main core!\n");
     print_el("Initialy we are at EL");
-
-    asm volatile("mov x0, #1");
-    asm volatile("mov v3.2D[0], x0");
-    asm volatile("mov x0, #2");
-    asm volatile("mov v3.2D[1], x0");
-
-    PRINT_ALL_REGISTERS(get_el());
-
+    init_el2_vectors();
     step_down_to_el1();
 }

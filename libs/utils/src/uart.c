@@ -1,3 +1,5 @@
+#include "utils/uart.h"
+
 #include "utils/config.h"
 
 #if BUILD_FOR_QEMU
@@ -134,9 +136,7 @@ void uart_write_string(const char *buffer) {
         uart_write_byte_blocking(*buffer++);
     }
 }
-void uart_write_hex(unsigned long long h) {
-    uart_write_byte_blocking('0');
-    uart_write_byte_blocking('x');
+void uart_write_hex_without_prefix(unsigned long long h) {
     int flag = 0;
     for(int c = 60; c >= 0; c -= 4) {
         unsigned long long n = (h>>c) & 0xF; // get highest tetrad
@@ -146,6 +146,11 @@ void uart_write_hex(unsigned long long h) {
             uart_write_byte_blocking(n);
         }
     }
+}
+void uart_write_hex(unsigned long long h) {
+    uart_write_byte_blocking('0');
+    uart_write_byte_blocking('x');
+    uart_write_hex_without_prefix(h);
 }
 void uart_write_long(long long d) {
     if(d < 0) {
