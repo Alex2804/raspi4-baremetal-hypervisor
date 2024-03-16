@@ -10,7 +10,7 @@ Determine the exception level (should be EL2) and switches to EL1.
 Implements the EL2 exception vector table and uses the HVC instruction to switch from EL1 to EL2.
 After the HVC instruction returns, the code steps down to EL0.
 
-You can find a high level overview of the AArch64 Exception Model [here](task_1/aarch64-exception-model.md).
+You can find a high level overview of the AArch64 Exception Model [here](tasks/task_1/aarch64-exception-model.md).
 
 ### task_2
 Read general purpose registers, vector processing registers, memory-mapped registers, and control/status registers and print them for each privilege level.

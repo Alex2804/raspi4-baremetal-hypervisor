@@ -1,20 +1,14 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.14.0)
 
-set(CMAKE_SYSTEM_NAME Generic)
-set(CMAKE_SYSTEM_PROCESSOR aarch64)
-set(CMAKE_CROSSCOMPILING TRUE)
+# external project before project definition to compile with the default toolchain (should be for host)
+include(ExternalProject)
+ExternalProject_Add(host_uart_writer
+        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/host_uart_writer
+        BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/host_uart_writer
+        INSTALL_COMMAND ""
+)
 
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-include(cmake/toolchain-aarch64-none-elf-gcc.cmake)
+project(raspi4-baremetal-hypervisor LANGUAGES C ASM)
 
-project(raspi4-baremetal-hypervisor)
-
-add_subdirectory(libs/utils rp4bh_utils)
-include(cmake/baremetal-target.cmake)
-
-add_subdirectory(task_0)
-add_subdirectory(task_1)
-add_subdirectory(task_2)
-add_subdirectory(task_3)
-add_subdirectory(task_4)
-add_subdirectory(task_5)
+add_subdirectory(tasks)
