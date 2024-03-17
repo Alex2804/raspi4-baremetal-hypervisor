@@ -16,6 +16,4 @@ void uart_write_hex_without_prefix(unsigned long long h);
 void uart_write_hex(unsigned long long h);
 void uart_write_long(long long d);
 
-void uart_dump(void *ptr);
-
 #endif  // RASPI4_BAREMETAL_HYPERVISOR_UART_H

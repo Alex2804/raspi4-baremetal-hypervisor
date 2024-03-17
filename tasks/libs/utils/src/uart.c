@@ -189,36 +189,3 @@ void uart_write_long(long long d) {
         }
     }
 }
-
-
-void uart_dump(void *ptr)
-{
-    unsigned long a, b, d;
-    unsigned char c;
-    for(a = (unsigned long)ptr; a < (unsigned long)ptr+512; a += 16) {
-        uart_write_hex(a);
-        uart_write_byte_blocking(':');
-        uart_write_byte_blocking(' ');
-        for(b = 0; b < 16; ++b) {
-            c = *(unsigned char*)(a+b);
-            d = (unsigned int)c;
-            d >>= 4;
-            d &= 0xF;
-            d += d > 9 ? 0x37 : 0x30;
-            uart_write_byte_blocking(d);
-            d = (unsigned int)c;
-            d &= 0xF;
-            d += d > 9 ? 0x37 : 0x30;
-            uart_write_byte_blocking(d);
-            uart_write_byte_blocking(' ');
-            if(b % 4 == 3)
-                uart_write_byte_blocking(' ');
-        }
-        for(b=0;b<16;b++) {
-            c = *(unsigned char*)(a+b);
-            uart_write_byte_blocking(c < 32 || c >= 127 ? '.' : c);
-        }
-        uart_write_byte_blocking('\r');
-        uart_write_byte_blocking('\n');
-    }
-}

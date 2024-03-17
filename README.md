@@ -24,6 +24,9 @@ Creates a simple program that is written into memory and executed.
 ### task_5
 Starts all cores and executes task_1 on all of them.
 
+### task_6
+Receives the program over uart, saves it to memory and executes it on all cores.
+
 ## References
 - https://github.com/raspberrypi
 - https://github.com/bztsrc/raspi3-tutorial/tree/master
