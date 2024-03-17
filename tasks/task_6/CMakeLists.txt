@@ -22,11 +22,3 @@ add_custom_target("${PROJECT_NAME}_program.img"
         BYPRODUCTS "${PROJECT_NAME}_programimg"
         COMMAND ${CMAKE_OBJCOPY} -O binary "${PROJECT_NAME}_program.elf" "${PROJECT_NAME}_program.img"
 )
-
-add_custom_target("${PROJECT_NAME}_program.h"
-        ALL DEPENDS "${PROJECT_NAME}_program.img"
-        COMMAND mkdir -p "kernel/include"
-        COMMAND xxd -i -n "program" "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_program.img" "${CMAKE_CURRENT_SOURCE_DIR}/kernel/include/${PROJECT_NAME}_program.h"
-)
-
-add_dependencies("${PROJECT_NAME}.elf" "${PROJECT_NAME}_program.h")

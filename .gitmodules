@@ -1,0 +1,3 @@
+[submodule "host_uart_writer/libs/CppLinuxSerial"]
+	path = host_uart_writer/libs/CppLinuxSerial
+	url = https://github.com/gbmhunter/CppLinuxSerial.git
