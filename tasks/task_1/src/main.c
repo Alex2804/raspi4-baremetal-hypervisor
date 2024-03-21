@@ -2,6 +2,19 @@
 #include "utils/exceptions/exceptions.h"
 #include "utils/exceptions/el2.h"
 
+void handle_sync_el1_64() {
+    const unsigned long esr = get_esr_el2();
+    const unsigned long elr = get_elr_el2();
+    if((esr & ESR_EL2_EC) == ESR_EL2_EC_HVC_AARCH64) {
+        uart_write_string("hvc from EL1, we are now at EL");
+        uart_write_long(get_el());
+        uart_write_newline();
+    } else {
+        uart_write_string("handle_sync_el1_64 called without known esr -> ");
+        show_invalid_entry_message(EXCEPTION_SYNC_EL1_64, esr, elr);
+    }
+}
+
 void step_downward_to_el0_code() {
     uart_write_string("We are now at EL0\n");
 
@@ -42,8 +55,10 @@ void step_down_to_el1() {
 
 void main()
 {
-    uart_init();
     init_el2_vectors();
+    el2_exception_handlers[EXCEPTION_SYNC_EL1_64] = handle_sync_el1_64;  // set handler for hvc instruction
+
+    uart_init();
 
     print_el("Initialy we are at EL");
 

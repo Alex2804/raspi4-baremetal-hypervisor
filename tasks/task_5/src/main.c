@@ -3,9 +3,25 @@
 #include "utils/exceptions/el2.h"
 #include "utils/exceptions/exceptions.h"
 
+volatile int finished_core = 0;
+
+void handle_sync_el1_64() {
+    const unsigned long esr = get_esr_el2();
+    const unsigned long elr = get_elr_el2();
+    if((esr & ESR_EL2_EC) == ESR_EL2_EC_HVC_AARCH64) {
+        uart_write_string("hvc from EL1, we are now at EL");
+        uart_write_long(get_el());
+        uart_write_newline();
+    } else {
+        uart_write_string("handle_sync_el1_64 called without known esr -> ");
+        show_invalid_entry_message(EXCEPTION_SYNC_EL1_64, esr, elr);
+    }
+}
 
 void step_downward_to_el0_code() {
     uart_write_string("We are now at EL0\n");
+
+    finished_core = 1;
 
     volatile int i = 1;
     while(i) {
@@ -47,6 +63,7 @@ void slave_core_main() {
     uart_write_string("!\n");
 
     init_el2_vectors();
+    el2_exception_handlers[EXCEPTION_SYNC_EL1_64] = handle_sync_el1_64;  // set handler for hvc instruction
     step_down_to_el1();
 }
 
@@ -57,33 +74,20 @@ void main()
     uart_write_long(get_core_id());
     uart_write_string(")!\n");
 
-    extern unsigned long long __spin_core_0;
-    for(unsigned long long i = 0; i < 4; ++i) {
-        uart_write_string("Address for core ");
-        uart_write_long(i);
-        uart_write_string(" is ");
-        uart_write_hex((unsigned long long)(&__spin_core_0 + i));
-
-        uart_write_string(" with value ");
-        uart_write_hex(*(&__spin_core_0 + i));
-        uart_write_newline();
-    }
-
-    uart_write_string("Starting other cores ...\n");
+    uart_write_string("Starting other cores ...\n\n");
 
     for(int core = 1; core < 4; ++core) {
+        finished_core = 0;
         start_core(core, &slave_core_main);
-        for(unsigned long long i = 0; i < 100000; ++i) {
+        while(!finished_core) {
             asm volatile("nop");
         }
-        uart_write_string("type 'c' to continue\n");
-        while(uart_read_char() != 'c') {
-            asm volatile("nop");
-        }
+        uart_write_newline();
     }
 
     uart_write_string("Back at main core!\n");
 
     init_el2_vectors();
+    el2_exception_handlers[EXCEPTION_SYNC_EL1_64] = handle_sync_el1_64;  // set handler for hvc instruction
     step_down_to_el1();
 }

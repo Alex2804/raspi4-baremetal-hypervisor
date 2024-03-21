@@ -30,16 +30,16 @@ slave_core:  // cpu id != 0 -> slave core
 
 main_core:  // cpu id == 0 -> main core
     // start cores 1 to 3
-    ldr     x1, =__spin_core_0  // address of fake spin core 0
-    str     xzr, [x1]  // store start address for core 0 after stack setup
-    str     xzr, [x1, #8]  // store start address for core 1 after stack setup
-    str     xzr, [x1, #16]  // store start address for core 2 after stack setup
-    str     xzr, [x1, #24]  // store start address for core 3 after stack setup
     mov     x1, 0xd8  // address of spin core 0
     ldr     x2, =_start  // address where the cores should start
     str     x2, [x1, #8]  // store start address for core 1
     str     x2, [x1, #16]  // store start address for core 2
     str     x2, [x1, #24]  // store start address for core 3
+    ldr     x1, =__spin_core_0  // address of fake spin core 0
+    str     xzr, [x1]  // store start address for core 0 after stack setup
+    str     xzr, [x1, #8]  // store start address for core 1 after stack setup
+    str     xzr, [x1, #16]  // store start address for core 2 after stack setup
+    str     xzr, [x1, #24]  // store start address for core 3 after stack setup
     // clear bss
     ldr     x1, =__bss_start
     ldr     w2, =__bss_size

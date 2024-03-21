@@ -5,7 +5,6 @@ void main()
 {
     uart_init();
 
-    unsigned long size = 0;
     char* memory_base_address;
 
     asm volatile("ldr %0, = _start" : "=r" (memory_base_address));

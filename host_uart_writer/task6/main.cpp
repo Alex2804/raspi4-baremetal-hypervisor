@@ -4,17 +4,17 @@
 
 #include "CppLinuxSerial/SerialPort.hpp"
 
-#include "../tasks/libs/utils/include/utils/config.h"
+#include "../../tasks/libs/utils/include/utils/config.h"
 
 #if  BUILD_FOR_QEMU
-const char* device_path = "/dev/pts/5";
+const char* device_path = "/dev/pts/6";
 constexpr mn::CppLinuxSerial::BaudRate baud_rate = mn::CppLinuxSerial::BaudRate::B_38400;
 #else
 const char* device_path = "/dev/ttyACM0";
 constexpr mn::CppLinuxSerial::BaudRate baud_rate = mn::CppLinuxSerial::BaudRate::B_115200;
 #endif
 
-const char* program_path = "/home/alexander/Development/Uni/Praktikum System and IoT Security/raspi4-baremetal-hypervisor/cmake-build-debug/tasks/task_6/task6_program.img";
+const char* program_path = "../../../cmake-build-debug/tasks/task_6/task6_program.img";
 
 template<typename Rep, typename Period>
 std::string wait_and_read(mn::CppLinuxSerial::SerialPort& serial_port, std::chrono::duration<Rep, Period> duration) {
@@ -47,7 +47,6 @@ int main() {
 
     for(int i = 0; i < 5; ++i) {
         std::cout << wait_and_read(serial_port, std::chrono::seconds(1)) << std::flush;
-        serial_port.Write("c");
     }
 
     serial_port.Close();

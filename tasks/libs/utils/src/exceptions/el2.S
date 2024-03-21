@@ -8,12 +8,23 @@ init_el2_vectors:
     msr vbar_el2, x0
     ret
 
-.macro handle_invalid_entry type
+.macro handle_entry type
     hypervisor_entry
-	mov	x0, #\type
-	mrs	x1, esr_el2
-	mrs	x2, elr_el2
-	bl	show_invalid_entry_message
+    mov x2, #\type
+    ldr x3, =el2_exception_handlers  // address exception handler array
+    ldr x3, [x3, x2, lsl #3] // load the address of the exception handler
+    cbz x3, 1f // branch if exception handler is not set
+    // if the exception handler is set, call it
+	blr x3
+	b 2f
+1:
+    // if the exception handler is not set, show invalid entry message
+    mov x0, #\type
+    mrs x1, esr_el2
+    mrs x2, elr_el2
+    bl show_invalid_entry_message
+2:
+	hypervisor_exit
 .endm
 
 .macro	hypervisor_entry
@@ -81,74 +92,70 @@ init_el2_vectors:
 
 .align	11
 vectors:
-	ventry	sync_invalid_el2t           // Synchronous EL2t
-	ventry	irq_invalid_el2t            // IRQ EL2t
-	ventry	fiq_invalid_el2t            // FIQ EL2t
-	ventry	error_invalid_el2t          // Error EL2t
+	ventry	sync_el2t           // Synchronous EL2t
+	ventry	irq_el2t            // IRQ EL2t
+	ventry	fiq_el2t            // FIQ EL2t
+	ventry	error_el2t          // Error EL2t
 
-	ventry	sync_invalid_el2h           // Synchronous EL2h
-	ventry	irq_invalid_el2h            // IRQ EL2h
-	ventry	fiq_invalid_el2h            // FIQ EL2h
-	ventry	error_invalid_el2h          // Error EL2h
+	ventry	sync_el2h           // Synchronous EL2h
+	ventry	irq_el2h            // IRQ EL2h
+	ventry	fiq_el2h            // FIQ EL2h
+	ventry	error_el2h          // Error EL2h
 
 	ventry	sync_el1_64                 // Synchronous 64-bit EL1
-	ventry	irq_invalid_el1_64          // IRQ 64-bit EL1
-	ventry	fiq_invalid_el1_64          // FIQ 64-bit EL1
-	ventry	error_invalid_el1_64        // Error 64-bit EL1
+	ventry	irq_el1_64          // IRQ 64-bit EL1
+	ventry	fiq_el1_64          // FIQ 64-bit EL1
+	ventry	error_el1_64        // Error 64-bit EL1
 
-	ventry	sync_invalid_el1_32         // Synchronous 32-bit EL1
-	ventry	irq_invalid_el1_32          // IRQ 32-bit EL1
-	ventry	fiq_invalid_el1_32          // FIQ 32-bit EL1
-	ventry	error_invalid_el1_32        // Error 32-bit EL1
+	ventry	sync_el1_32         // Synchronous 32-bit EL1
+	ventry	irq_el1_32          // IRQ 32-bit EL1
+	ventry	fiq_el1_32          // FIQ 32-bit EL1
+	ventry	error_el1_32        // Error 32-bit EL1
 
-sync_invalid_el2t:
-    handle_invalid_entry SYNC_INVALID_EL2T
+sync_el2t:
+    handle_entry EXCEPTION_SYNC_EL2T
 
-irq_invalid_el2t:
-    handle_invalid_entry IRQ_INVALID_EL2T
+irq_el2t:
+    handle_entry EXCEPTION_IRQ_EL2T
 
-fiq_invalid_el2t:
-    handle_invalid_entry FIQ_INVALID_EL2T
+fiq_el2t:
+    handle_entry EXCEPTION_FIQ_EL2T
 
-error_invalid_el2t:
-    handle_invalid_entry ERROR_INVALID_EL2T
+error_el2t:
+    handle_entry EXCEPTION_ERROR_EL2T
 
-sync_invalid_el2h:
-    handle_invalid_entry SYNC_INVALID_EL2H
+sync_el2h:
+    handle_entry EXCEPTION_SYNC_EL2H
 
-irq_invalid_el2h:
-    handle_invalid_entry IRQ_INVALID_EL2H
+irq_el2h:
+    handle_entry EXCEPTION_IRQ_EL2H
 
-fiq_invalid_el2h:
-    handle_invalid_entry FIQ_INVALID_EL2H
+fiq_el2h:
+    handle_entry EXCEPTION_FIQ_EL2H
 
-error_invalid_el2h:
-    handle_invalid_entry ERROR_INVALID_EL2H
+error_el2h:
+    handle_entry EXCEPTION_ERROR_EL2H
 
 sync_el1_64:
-    hypervisor_entry
-	mrs	x0, esr_el2 // exception syndrom register as first argument
-	mrs	x1, elr_el2 // exception link register as second argument
-    bl handle_sync_el1_64
-    hypervisor_exit
+    handle_entry EXCEPTION_SYNC_EL1_64
 
-irq_invalid_el1_64:
-    handle_invalid_entry IRQ_INVALID_EL1_64
+irq_el1_64:
+    handle_entry EXCEPTION_IRQ_EL1_64
 
-fiq_invalid_el1_64:
-    handle_invalid_entry FIQ_INVALID_EL1_64
+fiq_el1_64:
+    handle_entry EXCEPTION_FIQ_EL1_64
 
-error_invalid_el1_64:
-    handle_invalid_entry ERROR_INVALID_EL1_64
+error_el1_64:
+    handle_entry EXCEPTION_ERROR_EL1_64
 
-sync_invalid_el1_32:
-    handle_invalid_entry SYNC_INVALID_EL1_32
+sync_el1_32:
+    handle_entry EXCEPTION_SYNC_EL1_32
 
-irq_invalid_el1_32:
-    handle_invalid_entry IRQ_INVALID_EL1_32
+irq_el1_32:
+    handle_entry EXCEPTION_IRQ_EL1_32
 
-fiq_invalid_el1_32:
-    handle_invalid_entry FIQ_INVALID_EL1_32
+fiq_el1_32:
+    handle_entry EXCEPTION_FIQ_EL1_32
 
-error_invalid_el1_32:
-    handle_invalid_entry ERROR_INVALID_EL1_32
+error_el1_32:
+    handle_entry EXCEPTION_ERROR_EL1_32

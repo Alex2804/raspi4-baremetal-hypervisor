@@ -2,15 +2,16 @@
 
 #include "utils/exceptions/exceptions.h"
 
-#include "utils/uart.h"
+void(*el2_exception_handlers[16])();
 
-void handle_sync_el1_64(unsigned long esr, unsigned long address) {
-    if((esr & ESR_EL2_EC) == ESR_EL2_EC_HVC_AARCH64) {
-        uart_write_string("hvc from EL1, we are now at EL");
-        uart_write_long(get_el());
-        uart_write_newline();
-    } else {
-        uart_write_string("handle_sync_el1_64 called without known esr -> ");
-        show_invalid_entry_message(SYNC_INVALID_EL1_64, esr, address);
-    }
+register_aarch64_t get_esr_el2() {
+    register_aarch64_t esr_el2;
+    asm volatile("mrs %0, esr_el2" : "=r"(esr_el2));
+    return esr_el2;
+}
+
+register_aarch64_t get_elr_el2() {
+    register_aarch64_t elr_el2;
+    asm volatile("mrs %0, elr_el2" : "=r"(elr_el2));
+    return elr_el2;
 }

@@ -4,5 +4,5 @@ project(host_uart_writer)
 
 add_subdirectory(libs/CppLinuxSerial)
 
-add_executable(host_uart_writer main.cpp)
-target_link_libraries(host_uart_writer CppLinuxSerial::CppLinuxSerial)
+add_subdirectory(task6)
+add_subdirectory(task7)

@@ -46,11 +46,11 @@ void el_downstep(int current_el, spsr_elx_t spsr, void* eret_addr) {
     }
 }
 
-void show_invalid_entry_message(int type, unsigned long esr, unsigned long address) {
-    uart_write_string("Exception type: ");
+void show_invalid_entry_message(int type, unsigned long esr, unsigned long elr) {
+    uart_write_string("Unknown exception type - Exception type: ");
     uart_write_long(type);
-    uart_write_string("; return address: ");
-    uart_write_hex(address);
+    uart_write_string("; ELR: ");
+    uart_write_hex(elr);
     uart_write_string("; ESR: ");
     uart_write_hex(esr);
     uart_write_newline();

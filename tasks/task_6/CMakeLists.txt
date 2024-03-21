@@ -22,3 +22,5 @@ add_custom_target("${PROJECT_NAME}_program.img"
         BYPRODUCTS "${PROJECT_NAME}_programimg"
         COMMAND ${CMAKE_OBJCOPY} -O binary "${PROJECT_NAME}_program.elf" "${PROJECT_NAME}_program.img"
 )
+
+add_dependencies("${PROJECT_NAME}.elf" "${PROJECT_NAME}_program.img")
